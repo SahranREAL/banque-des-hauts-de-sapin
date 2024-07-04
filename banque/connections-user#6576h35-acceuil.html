@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion du compte - Banque des Hauts de Sapin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #006400;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .container {
+            background-color: #fff;
+            width: 80%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin: 0;
+        }
+        .account-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .account-info h2 {
+            color: #006400;
+            margin-bottom: 10px;
+        }
+        .account-info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        .transaction-history {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .transaction-history table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .transaction-history table th,
+        .transaction-history table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .transaction-history table th {
+            background-color: #006400;
+            color: white;
+            font-weight: normal;
+        }
+        .transaction-history table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .transaction-history table tbody tr:hover {
+            background-color: #e0e0e0;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #006400;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background-color: #228B22;
+        }
+        .menu {
+            background-color: #f2f2f2;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .menu a {
+            display: inline-block;
+            color: #333;
+            text-decoration: none;
+            padding: 8px 16px;
+            margin: 0 8px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .menu a:hover {
+            background-color: #ddd;
+        }
+        .icon {
+            font-size: 24px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .chart {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .chart img {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+        }
+        /* Styles pour la fenêtre modale */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Banque des Hauts de Sapin</h1>
+    </header>
+    <div class="container">
+        <div class="menu">
+            <a href="#"><i class="fas fa-home icon"></i> Accueil</a>
+            <a href="#" id="openModal"><i class="fas fa-exchange-alt icon"></i> Effectuer un Virement</a>
+            <a href="#"><i class="fas fa-cog icon"></i> Paramètres</a>
+            <a href="index.html"><i class="fas fa-sign-out-alt icon"></i> Déconnexion</a>
+        </div>
+
+        <div class="account-info">
+            <h2>Informations du Compte</h2>
+            <p><strong>Nom du titulaire:</strong> Matilde Piniata</p>
+            <p><strong>Numéro de compte:</strong> 1486385766</p>
+            <p><strong>Solde disponible:</strong> <span id="soldeDisponible">$</span></p>
+            <p><strong>Statut du compte:</strong> Actif</p>
+        </div>
+        
+        <div class="transaction-history">
+            <h2>Historique des Transactions</h2>
+            <table id="historiqueTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Montant</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionRows">
+                    <!-- Les lignes d'historique de transaction seront générées ici dynamiquement -->
+                </tr>     
+                    <td>06/07/2023</td>
+                    <td>Virement reçu de gmt.io</td>
+                    <td>$500</td>
+
+
+                <tr>
+                    <td>30/06/2024</td>
+                    <td>Paiement du VPS-Perso</td>
+                    <td>-$3</td>
+                </tr> 
+
+                <tr>
+                    <td>30/06/2024</td>
+                    <td>Paiement de VPS-SoulNode</td>
+                    <td>-$25</td>
+                </tr> 
+
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Fenêtre modale pour effectuer un virement -->
+        <div id="virementModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Effectuer un Virement</h2>
+                <form id="virementForm">
+                    <div class="form-group">
+                        <label for="beneficiaire">Nom du Bénéficiaire :</label>
+                        <input type="text" id="beneficiaire" name="beneficiaire" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="montant">Montant :</label>
+                        <input type="number" id="montant" name="montant" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="iban">Iban :</label>
+                        <input type="text" id="iban" name="iban" required>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" value="Effectuer le Virement">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Banque des Hauts de Sapin. Tous droits réservés.</p>
+    </div>
+
+    <script>
+        // Fonction pour obtenir la date actuelle au format JJ/MM/AAAA
+        function getCurrentDate() {
+            let today = new Date();
+            let dd = String(today.getDate()).padStart(2, '0');
+            let mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            let yyyy = today.getFullYear();
+            return dd + '/' + mm + '/' + yyyy;
+        }
+
+        // Chargement des données depuis localStorage s'il y en a
+        document.addEventListener('DOMContentLoaded', function() {
+            // Récupération du solde disponible depuis localStorage ou valeur par défaut
+            let solde = parseFloat(localStorage.getItem('soldeDisponible')) || 2057;
+            document.getElementById('soldeDisponible').textContent = `$${solde.toFixed(2)}`;
+
+            // Récupération de l'historique des transactions depuis localStorage ou vide
+            let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+            // Affichage initial de l'historique des transactions
+            let transactionRows = document.getElementById('transactionRows');
+            transactions.forEach(transaction => {
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.montant}</td>
+                `;
+                transactionRows.appendChild(row);
+            });
+
+            // Écoute du formulaire de virement
+            document.getElementById('virementForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Empêche le rechargement de la page
+
+                // Récupération des valeurs du formulaire
+                let beneficiaire = document.getElementById('beneficiaire').value;
+                let montant = parseFloat(document.getElementById('montant').value);
+                // Vérification du montant par rapport au solde disponible
+                if (montant <= solde) {
+                    // Ajout de la nouvelle transaction à l'historique
+                    let newTransaction = {
+                        date: getCurrentDate(),
+                        description: `Virement vers ${beneficiaire}`,
+                        montant: `-$${montant.toFixed(2)}`
+                    };
+                    transactions.push(newTransaction);
+
+                    // Mise à jour du solde disponible
+                    solde -= montant;
+                    document.getElementById('soldeDisponible').textContent = `$${solde.toFixed(2)}`;
+
+                    // Sauvegarde des données dans localStorage
+                    localStorage.setItem('soldeDisponible', solde);
+                    localStorage.setItem('transactions', JSON.stringify(transactions));
+
+                    // Affichage de la transaction dans l'interface
+                    let row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${newTransaction.date}</td>
+                        <td>${newTransaction.description}</td>
+                        <td>${newTransaction.montant}</td>
+                    `;
+                    transactionRows.appendChild(row);
+
+                    // Réinitialisation du formulaire
+                    document.getElementById('virementForm').reset();
+
+                    // Fermeture de la fenêtre modale après le virement
+                    document.getElementById('virementModal').style.display = 'none';
+                } else {
+                    alert('Fonds insuffisants pour effectuer ce virement.');
+                }
+            });
+
+            // Affichage de la fenêtre modale pour effectuer un virement
+            document.getElementById('openModal').addEventListener('click', function(event) {
+                event.preventDefault();
+                document.getElementById('virementModal').style.display = 'block';
+            });
+
+            // Fermeture de la fenêtre modale lorsqu'on clique sur le bouton de fermeture
+            document.getElementsByClassName('close')[0].addEventListener('click', function() {
+                document.getElementById('virementModal').style.display = 'none';
+            });
+
+            // Fermeture de la fenêtre modale si l'utilisateur clique en dehors de la fenêtre
+            window.onclick = function(event) {
+                if (event.target == document.getElementById('virementModal')) {
+                    document.getElementById('virementModal').style.display = 'none';
+                }
+            };
+        });
+    </script>
+</body>
+</html>
